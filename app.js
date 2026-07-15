@@ -217,18 +217,63 @@ function buildTips(result) {
     .map((dimension) => dimension.tip);
 }
 
+const ADMIN_SESSION_KEY = "promptscore_admin";
+// SHA-256 of "promptscore-admin"
+const ADMIN_PASSWORD_HASH =
+  "2ca3e2fc151d65430b39476f3788886c524499e02e1e403a4e3feb0dea2b5c05";
+
 const form = document.getElementById("scorer-form");
 const input = document.getElementById("prompt-input");
 const wordCount = document.getElementById("word-count");
 const results = document.getElementById("results");
+const overallScore = document.getElementById("overall-score");
+const viewerBanner = document.getElementById("viewer-banner");
 const breakdown = document.getElementById("breakdown");
 const tipsList = document.getElementById("tips-list");
 const totalScoreEl = document.getElementById("total-score");
 const scoreTitle = document.getElementById("score-title");
 const scoreSummary = document.getElementById("score-summary");
 const ringValue = document.getElementById("ring-value");
+const rolePill = document.getElementById("role-pill");
+const adminToggle = document.getElementById("admin-toggle");
+const adminDialog = document.getElementById("admin-dialog");
+const adminForm = document.getElementById("admin-form");
+const adminPassword = document.getElementById("admin-password");
+const adminError = document.getElementById("admin-error");
+const adminCancel = document.getElementById("admin-cancel");
 
 const RING_LENGTH = 2 * Math.PI * 52;
+let latestResult = null;
+
+async function hashPassword(password) {
+  const data = new TextEncoder().encode(password);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function isAdmin() {
+  return sessionStorage.getItem(ADMIN_SESSION_KEY) === "1";
+}
+
+function setAdminSession(active) {
+  if (active) {
+    sessionStorage.setItem(ADMIN_SESSION_KEY, "1");
+  } else {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  }
+  syncRoleUi();
+  if (latestResult) {
+    renderResults(latestResult);
+  }
+}
+
+function syncRoleUi() {
+  const admin = isAdmin();
+  rolePill.textContent = admin ? "Admin mode" : "Viewer mode";
+  adminToggle.textContent = admin ? "Sign out" : "Admin login";
+}
 
 function updateWordCount() {
   const words = input.value.trim()
@@ -282,17 +327,24 @@ function renderTips(result) {
 }
 
 function renderResults(result) {
+  latestResult = result;
+  const admin = isAdmin();
   const verdict = verdictFor(result.total);
-  results.hidden = false;
-  totalScoreEl.textContent = String(result.total);
-  scoreTitle.textContent = verdict.title;
-  scoreSummary.textContent = verdict.summary;
 
-  ringValue.style.stroke = ringColor(result.total);
-  ringValue.style.strokeDasharray = String(RING_LENGTH);
-  ringValue.style.strokeDashoffset = String(
-    RING_LENGTH - (result.total / 100) * RING_LENGTH
-  );
+  results.hidden = false;
+  overallScore.hidden = !admin;
+  viewerBanner.hidden = admin;
+
+  if (admin) {
+    totalScoreEl.textContent = String(result.total);
+    scoreTitle.textContent = verdict.title;
+    scoreSummary.textContent = verdict.summary;
+    ringValue.style.stroke = ringColor(result.total);
+    ringValue.style.strokeDasharray = String(RING_LENGTH);
+    ringValue.style.strokeDashoffset = String(
+      RING_LENGTH - (result.total / 100) * RING_LENGTH
+    );
+  }
 
   renderBreakdown(result);
   renderTips(result);
@@ -307,4 +359,32 @@ form.addEventListener("submit", (event) => {
   renderResults(result);
 });
 
+adminToggle.addEventListener("click", () => {
+  if (isAdmin()) {
+    setAdminSession(false);
+    return;
+  }
+  adminError.hidden = true;
+  adminPassword.value = "";
+  adminDialog.showModal();
+  adminPassword.focus();
+});
+
+adminCancel.addEventListener("click", () => {
+  adminDialog.close();
+});
+
+adminForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const hash = await hashPassword(adminPassword.value);
+  if (hash !== ADMIN_PASSWORD_HASH) {
+    adminError.hidden = false;
+    return;
+  }
+  adminError.hidden = true;
+  setAdminSession(true);
+  adminDialog.close();
+});
+
+syncRoleUi();
 updateWordCount();

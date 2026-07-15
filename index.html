@@ -24,12 +24,37 @@
     </div>
 
     <header class="site-header">
-      <a class="brand" href="/">
+      <a class="brand" href="./">
         <span class="brand-mark" aria-hidden="true"></span>
         PromptScore
       </a>
-      <p class="pill">100% free · Runs in your browser</p>
+      <div class="header-actions">
+        <p class="pill" id="role-pill">Viewer mode</p>
+        <button type="button" class="ghost-btn" id="admin-toggle">
+          Admin login
+        </button>
+      </div>
     </header>
+
+    <dialog class="admin-dialog" id="admin-dialog">
+      <form method="dialog" id="admin-form" class="admin-form">
+        <h2>Admin access</h2>
+        <p>Sign in to view overall score results (0–100).</p>
+        <label class="field-label" for="admin-password">Password</label>
+        <input
+          id="admin-password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+        <p class="admin-error" id="admin-error" hidden>Incorrect password.</p>
+        <div class="admin-actions">
+          <button type="submit" class="cta" value="login">Sign in</button>
+          <button type="button" class="ghost-btn" id="admin-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
 
     <main>
       <section class="hero">
@@ -61,7 +86,7 @@
       </section>
 
       <section class="results" id="results" hidden>
-        <div class="score-stage">
+        <div class="score-stage admin-only" id="overall-score" hidden>
           <div class="score-ring" role="img" aria-labelledby="score-label">
             <svg viewBox="0 0 120 120" class="ring-svg">
               <circle class="ring-track" cx="60" cy="60" r="52" />
@@ -73,12 +98,21 @@
             </div>
           </div>
           <div class="score-copy">
-            <p class="score-eyebrow" id="score-label">Overall score</p>
+            <p class="score-eyebrow" id="score-label">Overall score · Admin</p>
             <h2 id="score-title">Ready when you are</h2>
             <p id="score-summary">
               Your breakdown appears here after you score a prompt.
             </p>
           </div>
+        </div>
+
+        <div class="viewer-banner" id="viewer-banner" hidden>
+          <p class="score-eyebrow">Score breakdown</p>
+          <h2>Dimension feedback</h2>
+          <p>
+            Overall totals are limited to admin accounts. You still get the
+            per-dimension ratings and improvement tips below.
+          </p>
         </div>
 
         <div class="breakdown" id="breakdown"></div>
