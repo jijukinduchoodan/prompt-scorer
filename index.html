@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PromptScore — Rate & Improve Your AI Prompts</title>
+    <meta
+      name="description"
+      content="Paste any prompt and get an instant 0–100 quality score across specificity, context, role, format, and constraints."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true">
+      <div class="orb orb-a"></div>
+      <div class="orb orb-b"></div>
+      <div class="grid-wash"></div>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PromptScore
+      </a>
+      <p class="pill">100% free · Runs in your browser</p>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>PromptScore</h1>
+          <p class="lede">
+            Paste a prompt. See what is holding it back. Score specificity,
+            context, role, format, and constraints out of 100.
+          </p>
+        </div>
+
+        <form class="scorer" id="scorer-form">
+          <label class="field-label" for="prompt-input">Your AI prompt</label>
+          <textarea
+            id="prompt-input"
+            name="prompt"
+            rows="10"
+            placeholder="Example: Act as a senior product designer. Given our B2B SaaS onboarding friction, rewrite this checkout microcopy in a concise, confident tone. Return 3 options as a markdown table with columns for Variant, Copy, and Why it works. Keep each line under 12 words and avoid slang."
+            required
+          ></textarea>
+          <div class="form-meta">
+            <span id="word-count">0 words</span>
+            <button type="submit" class="cta" id="score-btn">
+              Score my prompt
+              <span class="cta-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="results" id="results" hidden>
+        <div class="score-stage">
+          <div class="score-ring" role="img" aria-labelledby="score-label">
+            <svg viewBox="0 0 120 120" class="ring-svg">
+              <circle class="ring-track" cx="60" cy="60" r="52" />
+              <circle class="ring-value" id="ring-value" cx="60" cy="60" r="52" />
+            </svg>
+            <div class="score-number">
+              <span id="total-score">0</span>
+              <small>/100</small>
+            </div>
+          </div>
+          <div class="score-copy">
+            <p class="score-eyebrow" id="score-label">Overall score</p>
+            <h2 id="score-title">Ready when you are</h2>
+            <p id="score-summary">
+              Your breakdown appears here after you score a prompt.
+            </p>
+          </div>
+        </div>
+
+        <div class="breakdown" id="breakdown"></div>
+
+        <div class="tips-panel" id="tips-panel">
+          <h3>How to improve</h3>
+          <ul id="tips-list"></ul>
+        </div>
+      </section>
+
+      <section class="how">
+        <h2>What we measure</h2>
+        <p class="section-lede">
+          Each dimension is scored from 0–20 using transparent pattern checks —
+          no signup, and nothing leaves your browser.
+        </p>
+        <ul class="criteria">
+          <li>
+            <span class="criteria-icon" aria-hidden="true">🎯</span>
+            <div>
+              <h3>Specificity</h3>
+              <p>Concrete details, numbers, examples, and clear asks.</p>
+            </div>
+          </li>
+          <li>
+            <span class="criteria-icon" aria-hidden="true">📋</span>
+            <div>
+              <h3>Context</h3>
+              <p>Background, audience, goals, and situation for the model.</p>
+            </div>
+          </li>
+          <li>
+            <span class="criteria-icon" aria-hidden="true">🎭</span>
+            <div>
+              <h3>Role Assignment</h3>
+              <p>An expert persona or role that shapes the response style.</p>
+            </div>
+          </li>
+          <li>
+            <span class="criteria-icon" aria-hidden="true">📐</span>
+            <div>
+              <h3>Output Format</h3>
+              <p>Structure such as JSON, tables, bullets, or labeled sections.</p>
+            </div>
+          </li>
+          <li>
+            <span class="criteria-icon" aria-hidden="true">📏</span>
+            <div>
+              <h3>Constraints</h3>
+              <p>Limits, must/don’t rules, tone bounds, and length caps.</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>PromptScore · Instant prompt quality feedback in your browser.</p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

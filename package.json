@@ -1,0 +1,10 @@
+{
+  "name": "prompt-scorer",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Client-side AI prompt quality scorer",
+  "scripts": {
+    "start": "python3 -m http.server 5173",
+    "serve": "python3 -m http.server 5173"
+  }
+}
