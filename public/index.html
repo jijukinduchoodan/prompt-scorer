@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PromptScore — Submit & Score AI Prompts</title>
+    <meta
+      name="description"
+      content="Users submit prompts by use case. Admins review, score, and share results."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true">
+      <div class="orb orb-a"></div>
+      <div class="orb orb-b"></div>
+      <div class="grid-wash"></div>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="./">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PromptScore
+      </a>
+      <div class="header-actions" id="header-actions" hidden>
+        <p class="pill" id="role-pill"></p>
+        <button type="button" class="ghost-btn" id="logout-btn">Log out</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="auth-panel" id="auth-panel">
+        <div class="hero-copy">
+          <h1>PromptScore</h1>
+          <p class="lede">
+            Normal users submit prompts for a use case. Admins review those
+            submissions and run scoring to produce results.
+          </p>
+        </div>
+
+        <div class="auth-card">
+          <div class="auth-tabs" role="tablist">
+            <button type="button" class="auth-tab is-active" data-mode="login">
+              Log in
+            </button>
+            <button type="button" class="auth-tab" data-mode="register">
+              Register
+            </button>
+          </div>
+
+          <form id="auth-form" class="auth-form">
+            <label class="field-label" for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required />
+
+            <label class="field-label" for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+
+            <p class="form-error" id="auth-error" hidden></p>
+            <button type="submit" class="cta" id="auth-submit">Log in</button>
+          </form>
+
+          <p class="auth-hint">
+            Admins: <strong>jki</strong>, <strong>richa</strong>,
+            <strong>minju</strong> (default password
+            <code>admin123</code>). Everyone else registers as a normal user.
+          </p>
+        </div>
+      </section>
+
+      <section class="app-panel" id="app-panel" hidden>
+        <div class="hero-copy">
+          <h1 id="app-title">Workspace</h1>
+          <p class="lede" id="app-lede"></p>
+        </div>
+
+        <section class="panel" id="user-panel" hidden>
+          <form class="scorer" id="submit-form">
+            <label class="field-label" for="use-case">Use case</label>
+            <select id="use-case" name="useCase" required></select>
+
+            <label class="field-label" for="prompt-input">Your prompt</label>
+            <textarea
+              id="prompt-input"
+              name="prompt"
+              rows="8"
+              placeholder="Write the full prompt for this use case..."
+              required
+            ></textarea>
+
+            <div class="form-meta">
+              <span id="word-count">0 words</span>
+              <button type="submit" class="cta">Submit prompt</button>
+            </div>
+            <p class="form-error" id="submit-error" hidden></p>
+            <p class="form-success" id="submit-success" hidden></p>
+          </form>
+
+          <div class="list-panel">
+            <h2>Your submissions</h2>
+            <div id="my-prompts" class="prompt-list"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="admin-panel" hidden>
+          <div class="list-panel">
+            <div class="list-header">
+              <h2>Submitted prompts</h2>
+              <button type="button" class="ghost-btn" id="refresh-btn">
+                Refresh
+              </button>
+            </div>
+            <div id="admin-prompts" class="prompt-list"></div>
+          </div>
+
+          <div class="results" id="score-results" hidden>
+            <div class="score-stage" id="overall-score">
+              <div class="score-ring" role="img" aria-labelledby="score-label">
+                <svg viewBox="0 0 120 120" class="ring-svg">
+                  <circle class="ring-track" cx="60" cy="60" r="52" />
+                  <circle
+                    class="ring-value"
+                    id="ring-value"
+                    cx="60"
+                    cy="60"
+                    r="52"
+                  />
+                </svg>
+                <div class="score-number">
+                  <span id="total-score">0</span>
+                  <small>/100</small>
+                </div>
+              </div>
+              <div class="score-copy">
+                <p class="score-eyebrow" id="score-label">Overall score · Admin</p>
+                <h2 id="score-title">Ready when you are</h2>
+                <p id="score-summary">
+                  Select a submission and run scoring to see results.
+                </p>
+              </div>
+            </div>
+            <div class="breakdown" id="breakdown"></div>
+            <div class="tips-panel" id="tips-panel">
+              <h3>How to improve</h3>
+              <ul id="tips-list"></ul>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>PromptScore · Users submit · Admins score</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

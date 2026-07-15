@@ -1,10 +1,19 @@
 {
   "name": "prompt-scorer",
   "private": true,
-  "version": "1.0.0",
-  "description": "Client-side AI prompt quality scorer",
+  "version": "1.1.0",
+  "description": "Prompt submission and admin scoring workspace",
+  "main": "server.js",
   "scripts": {
-    "start": "python3 -m http.server 5173",
-    "serve": "python3 -m http.server 5173"
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.1.0"
   }
 }
