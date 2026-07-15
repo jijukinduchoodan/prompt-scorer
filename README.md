@@ -3,7 +3,7 @@
 Multi-user prompt workspace:
 
 - **Normal users** register/log in, pick a use case, submit prompts (saved).
-- **Admins** (`jki`, `richa`, `minju`) review submissions and run scoring.
+- **Admins**  review submissions and run scoring.
 - **Overall score results** are admin-only.
 
 ## Run locally
