@@ -10,12 +10,26 @@ const COOKIE_NAME = "promptscore_session";
 
 db.ensureStore();
 
+app.set("trust proxy", 1);
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 function getToken(req) {
   return req.cookies[COOKIE_NAME] || "";
+}
+
+function sessionCookieOptions(req) {
+  const secure =
+    process.env.NODE_ENV === "production" ||
+    req.secure ||
+    req.headers["x-forwarded-proto"] === "https";
+  return {
+    httpOnly: true,
+    sameSite: "lax",
+    secure,
+    maxAge: 1000 * 60 * 60 * 24 * 14,
+  };
 }
 
 function requireAuth(req, res, next) {
@@ -40,10 +54,6 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/use-cases", (_req, res) => {
-  res.json({ useCases: db.USE_CASES });
-});
-
 app.get("/api/auth/me", (req, res) => {
   const user = db.getSessionUser(getToken(req));
   res.json({ user: db.publicUser(user) });
@@ -53,12 +63,7 @@ app.post("/api/auth/register", (req, res) => {
   try {
     const user = db.createUser(req.body?.username, req.body?.password);
     const token = db.createSession(user.id);
-    res.cookie(COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 14,
-    });
+    res.cookie(COOKIE_NAME, token, sessionCookieOptions(req));
     res.status(201).json({ user: db.publicUser(user) });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -71,12 +76,7 @@ app.post("/api/auth/login", (req, res) => {
     return res.status(401).json({ error: "Invalid username or password." });
   }
   const token = db.createSession(user.id);
-  res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 14,
-  });
+  res.cookie(COOKIE_NAME, token, sessionCookieOptions(req));
   res.json({ user: db.publicUser(user) });
 });
 
@@ -105,7 +105,6 @@ app.post("/api/prompts", requireAuth, (req, res) => {
   try {
     const prompt = db.createPrompt({
       user: req.user,
-      useCase: req.body?.useCase,
       prompt: req.body?.prompt,
     });
     res.status(201).json({ prompt: db.sanitizePrompt(prompt, req.user) });
@@ -133,7 +132,4 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`PromptScore running at http://127.0.0.1:${PORT}`);
-  console.log(
-    `Admin accounts: jki / richa / minju (password: ${db.DEFAULT_ADMIN_PASSWORD})`
-  );
 });

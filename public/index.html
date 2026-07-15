@@ -39,8 +39,8 @@
         <div class="hero-copy">
           <h1>PromptScore</h1>
           <p class="lede">
-            Normal users submit prompts for a use case. Admins review those
-            submissions and run scoring to produce results.
+            Normal users submit prompts. Admins review those submissions and
+            run scoring to produce results.
           </p>
         </div>
 
@@ -70,12 +70,6 @@
             <p class="form-error" id="auth-error" hidden></p>
             <button type="submit" class="cta" id="auth-submit">Log in</button>
           </form>
-
-          <p class="auth-hint">
-            Admins: <strong>jki</strong>, <strong>richa</strong>,
-            <strong>minju</strong> (default password
-            <code>admin123</code>). Everyone else registers as a normal user.
-          </p>
         </div>
       </section>
 
@@ -87,15 +81,12 @@
 
         <section class="panel" id="user-panel" hidden>
           <form class="scorer" id="submit-form">
-            <label class="field-label" for="use-case">Use case</label>
-            <select id="use-case" name="useCase" required></select>
-
             <label class="field-label" for="prompt-input">Your prompt</label>
             <textarea
               id="prompt-input"
               name="prompt"
               rows="8"
-              placeholder="Write the full prompt for this use case..."
+              placeholder="Write the full prompt..."
               required
             ></textarea>
 
@@ -107,8 +98,12 @@
             <p class="form-success" id="submit-success" hidden></p>
           </form>
 
+          <p class="limit-note" id="submit-limit-note" hidden>
+            You already submitted your one allowed prompt.
+          </p>
+
           <div class="list-panel">
-            <h2>Your submissions</h2>
+            <h2>Your submission</h2>
             <div id="my-prompts" class="prompt-list"></div>
           </div>
         </section>

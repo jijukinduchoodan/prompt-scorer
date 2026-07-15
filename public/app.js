@@ -3,7 +3,6 @@ const RING_LENGTH = 2 * Math.PI * 52;
 const state = {
   mode: "login",
   user: null,
-  useCases: [],
   prompts: [],
 };
 
@@ -23,11 +22,11 @@ const els = {
   userPanel: document.getElementById("user-panel"),
   adminPanel: document.getElementById("admin-panel"),
   submitForm: document.getElementById("submit-form"),
-  useCase: document.getElementById("use-case"),
   promptInput: document.getElementById("prompt-input"),
   wordCount: document.getElementById("word-count"),
   submitError: document.getElementById("submit-error"),
   submitSuccess: document.getElementById("submit-success"),
+  submitLimitNote: document.getElementById("submit-limit-note"),
   myPrompts: document.getElementById("my-prompts"),
   adminPrompts: document.getElementById("admin-prompts"),
   refreshBtn: document.getElementById("refresh-btn"),
@@ -98,6 +97,8 @@ function showLoggedOut() {
   els.authPanel.hidden = false;
   els.appPanel.hidden = true;
   els.headerActions.hidden = true;
+  els.userPanel.hidden = true;
+  els.adminPanel.hidden = true;
   els.scoreResults.hidden = true;
 }
 
@@ -112,17 +113,20 @@ function showLoggedIn() {
   els.appTitle.textContent = isAdmin ? "Admin scoring" : "Submit a prompt";
   els.appLede.textContent = isAdmin
     ? "Review prompts submitted by users, then run scoring to produce overall results."
-    : "Choose a use case, paste your prompt, and submit it for admin scoring.";
+    : "Paste your one prompt and submit it for admin scoring.";
+
+  // Users get the submit form; admins only get the review/scoring workspace.
   els.userPanel.hidden = isAdmin;
   els.adminPanel.hidden = !isAdmin;
+  els.scoreResults.hidden = true;
+  syncSubmitAvailability();
 }
 
-async function loadUseCases() {
-  const data = await api("/api/use-cases");
-  state.useCases = data.useCases;
-  els.useCase.innerHTML = state.useCases
-    .map((item) => `<option value="${item}">${item}</option>`)
-    .join("");
+function syncSubmitAvailability() {
+  if (!state.user || state.user.role === "admin") return;
+  const hasSubmission = state.prompts.length > 0;
+  els.submitForm.hidden = hasSubmission;
+  els.submitLimitNote.hidden = !hasSubmission;
 }
 
 async function loadPrompts() {
@@ -132,13 +136,14 @@ async function loadPrompts() {
     renderAdminPrompts();
   } else {
     renderMyPrompts();
+    syncSubmitAvailability();
   }
 }
 
 function renderMyPrompts() {
   if (!state.prompts.length) {
     els.myPrompts.innerHTML =
-      '<p class="empty">No submissions yet. Add your first prompt above.</p>';
+      '<p class="empty">No submission yet. You can submit one prompt above.</p>';
     return;
   }
 
@@ -147,7 +152,7 @@ function renderMyPrompts() {
       (item) => `
       <article class="prompt-card">
         <div class="prompt-card-top">
-          <h3>${escapeHtml(item.useCase)}</h3>
+          <h3>Prompt</h3>
           <span class="status status-${item.status}">${item.status}</span>
         </div>
         <p class="prompt-meta">${formatDate(item.createdAt)}${
@@ -172,11 +177,10 @@ function renderAdminPrompts() {
       (item) => `
       <article class="prompt-card" data-id="${item.id}">
         <div class="prompt-card-top">
-          <h3>${escapeHtml(item.useCase)}</h3>
+          <h3>Prompt from ${escapeHtml(item.username)}</h3>
           <span class="status status-${item.status}">${item.status}</span>
         </div>
         <p class="prompt-meta">
-          by <strong>${escapeHtml(item.username)}</strong> ·
           ${formatDate(item.createdAt)}
           ${
             item.scoredBy
@@ -250,7 +254,6 @@ function renderScoreResult(result, meta = {}) {
 }
 
 async function bootstrap() {
-  await loadUseCases();
   const me = await api("/api/auth/me");
   if (!me.user) {
     showLoggedOut();
@@ -307,13 +310,12 @@ els.submitForm.addEventListener("submit", async (event) => {
     await api("/api/prompts", {
       method: "POST",
       body: JSON.stringify({
-        useCase: els.useCase.value,
         prompt: els.promptInput.value,
       }),
     });
     els.promptInput.value = "";
     updateWordCount();
-    els.submitSuccess.textContent = "Prompt submitted and saved.";
+    els.submitSuccess.textContent = "Prompt submitted. You cannot submit another.";
     els.submitSuccess.hidden = false;
     await loadPrompts();
   } catch (error) {
@@ -342,7 +344,7 @@ els.adminPrompts.addEventListener("click", async (event) => {
       });
       await loadPrompts();
       renderScoreResult(data.prompt.result, {
-        summary: `${data.prompt.result.verdict.summary} Submitted by ${data.prompt.username} for ${data.prompt.useCase}.`,
+        summary: `${data.prompt.result.verdict.summary} Submitted by ${data.prompt.username}.`,
       });
       return;
     }
@@ -350,7 +352,7 @@ els.adminPrompts.addEventListener("click", async (event) => {
     const prompt = state.prompts.find((item) => item.id === id);
     if (prompt?.result) {
       renderScoreResult(prompt.result, {
-        summary: `Saved result for ${prompt.username} · ${prompt.useCase}`,
+        summary: `Saved result for ${prompt.username}`,
       });
     }
   } catch (error) {
